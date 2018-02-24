@@ -5,7 +5,7 @@
   become_method: sudo
   connection: ssh
   gather_facts: yes
-  port: 8888
+  port: 22
   vars:
    hostname: "server.change.me"
 
