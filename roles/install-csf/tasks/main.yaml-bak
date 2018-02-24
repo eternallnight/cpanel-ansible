@@ -1,0 +1,4 @@
+---
+
+- name: Include install.yaml for CSF
+  include: install.yaml

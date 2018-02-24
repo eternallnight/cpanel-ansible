@@ -1,0 +1,44 @@
+---
+- name: Download csf
+  get_url: 
+    url: https://download.configserver.com/csf.tgz 
+    dest: /usr/src/csf.tgz
+  register: csf_downloaded
+  tags: configserver_csf
+
+- name: Extract csf
+  unarchive: 
+    src: /usr/src/csf.tgz 
+    dest: /usr/src 
+    copy: no
+  register: csf_unarchived
+  when: csf_downloaded|changed
+  tags: configserver_csf
+
+- name: Install csf
+  shell: /usr/src/csf/install.sh 
+  args:
+    chdir: /usr/src/csf/
+  when: csf_unarchived|changed
+  register: csf_install_completed
+  tags: configserver_csf
+
+- name: Remove archive
+  file: 
+    path: /usr/src/csf.tgz 
+    state: absent
+
+- name: Update csf.conf
+  template:
+    src: "../templates/csf.conf.j2"
+    dest: "/etc/csf/csf.conf"
+    owner: root
+    group: root
+    mode: 0600
+    backup: yes
+  with_items:
+    - "csf.conf"
+  notify:
+    - restart csf
+    - restart lfd
+  tags: install-csf

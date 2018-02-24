@@ -1,0 +1,36 @@
+---
+- name: Install dependencies (libselinux-python)
+  yum:
+   name: libselinux-python
+   state: present
+
+- name: Install sudo
+  yum:
+   name: sudo
+   state: present
+
+- name: set ssh port to 8888
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "Port"
+    line: "Port 8888"
+
+- name: restarting ssh
+  service:
+   name: sshd
+   state: restarted
+
+- name: create swap file
+  command: fallocate -l 1G /var/swap
+
+- name: mkswap swap
+  command: mkswap /var/swap
+
+- name: set swap permissions
+  command: chmod 600 /var/swap
+
+- name: Turn Swap on
+  command: swapon /var/swap
+
+- name: Add to fstab
+  action: lineinfile dest=/etc/fstab regexp="swap" line="/var/swap               none                    swap    defaults        0 0" state=present
